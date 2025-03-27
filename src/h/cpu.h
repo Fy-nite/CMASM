@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "instruction.h"
+
 
 // TODO: Add a header guard
 // what is a header guard?

@@ -56,18 +56,37 @@ enum Instructions {
     MOVFROM = 0x22,
 };
 
+enum Registers {
+    RAX = 0,
+    RBX = 1,
+    RCX = 2,
+    RDX = 3,
+    RDI = 4,
+    RSI = 5,
+    RBP = 6,
+    RSP = 7,
+    R0 = 8,
+    R1 = 9,
+    R2 = 10,
+    R3 = 11,
+    R4 = 12,
+    R5 = 13,        
+    R6 = 14,
+    R7 = 15,
+    R8 = 16,
+    R9 = 17,
+    R10 = 18,
+    R11 = 19,
+    R12 = 20,
+    R13 = 21,
+    R14 = 22,
+    R15 = 23,
+}
 
-
+// "Instruction" is a not a variable?????
+#pragma ignore GCC diagnostic "-Wunused-variable"
 Instruction create_instruction(char opcodze, const char* operands); // Function to create an instruction    
 Instruction parse_instruction(const char* str);// Function to parse an instruction from a string
 
 
 
-void execute_instruction(Instruction instruction);// Function to execute an instruction
-void print_instruction(Instruction instruction);// Function to print an instruction
-int get_instruction_size(Instruction instruction);// Function to get the size of an instruction
-int get_operand_count(Instruction instruction);// Function to get the number of operands of an instruction
-char get_opcode(Instruction instruction);// Function to get the opcode of an instruction
-const char* get_operands(Instruction instruction);// Function to get the operands of an instruction
-const char* get_operand(Instruction instruction, int index);// Function to get the operand at a specific index
-int get_operand_size(Instruction instruction, int index);// Function to get the size of an operand

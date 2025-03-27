@@ -34,7 +34,7 @@ MASMException* create_masm_exception(const char* message, int code, int line, in
     exception->source = strdup(source);
     return exception;
 }
-// Function to free a MASMException
+// Function to free and exit the program with a masm exception
 void free_masm_exception(MASMException* exception) {
     if (exception != NULL) {
         free(exception->message);
@@ -43,5 +43,21 @@ void free_masm_exception(MASMException* exception) {
         free(exception->context);
         free(exception->source);
         free(exception);
+    }
+    exit(EXIT_FAILURE);
+}
+// Function to print the MASMException
+void print_masm_exception(MASMException* exception) {
+    if (exception != NULL) {
+        fprintf(stderr, "\033[31m"); // Set text color to red
+        fprintf(stderr, "MASMException: %s\n", exception->message);
+        fprintf(stderr, "Error code: %d\n", exception->code);
+        fprintf(stderr, "Line: %d\n", exception->line);
+        fprintf(stderr, "Column: %d\n", exception->column);
+        fprintf(stderr, "File: %s\n", exception->file);
+        fprintf(stderr, "Function: %s\n", exception->function);
+        fprintf(stderr, "Context: %s\n", exception->context);
+        fprintf(stderr, "Source: %s\n", exception->source);
+        fprintf(stderr, "\033[0m"); // Reset text color
     }
 }
