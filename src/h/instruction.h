@@ -70,7 +70,7 @@ enum Registers {
     R2 = 10,
     R3 = 11,
     R4 = 12,
-    R5 = 13,        
+    R5 = 13,
     R6 = 14,
     R7 = 15,
     R8 = 16,
@@ -81,12 +81,27 @@ enum Registers {
     R13 = 21,
     R14 = 22,
     R15 = 23,
-}
+};
 
-// "Instruction" is a not a variable?????
+enum OperandTypes {
+    REGISTER = 0,
+    IMMEDIATE = 1,
+    MEMORY = 2,
+    LABEL = 3,
+    MNIFUNC = 4,
+    NONE = 5,
+    NOPERATOR = 6,
+};
+
+
+enum OperandSizes {
+    BYTE = 0,
+    WORD = 1,
+    DWORD = 2,
+    QWORD = 3,
+    ITSLARGEOK = 4,
+};
+
 #pragma ignore GCC diagnostic "-Wunused-variable"
-Instruction create_instruction(char opcodze, const char* operands); // Function to create an instruction    
+Instruction create_instruction(char opcodze, const char* operands); // Function to create an instruction
 Instruction parse_instruction(const char* str);// Function to parse an instruction from a string
-
-
-

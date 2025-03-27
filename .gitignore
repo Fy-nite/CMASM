@@ -22,7 +22,7 @@ CMakeFiles/
 cmake_install.cmake
 Makefile
 build/
-
+out/
 # IDE specific files
 *.idea/
 *.vscode/
