@@ -5,8 +5,8 @@ cmake_minimum_required(VERSION 3.10)
 project(cmasm LANGUAGES C CXX)
 
 # Set C and C++ standards
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_STANDARD 23)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Automatically grab source files from c, cpp, and h folders

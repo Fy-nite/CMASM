@@ -1,0 +1,10 @@
+^\\CHARLIES-MBP.MODEM\CHARLIE\GIT\CASM\CMAKEFILES\3D8237E92AB99AA61D586C33A8299396\GENERATE.STAMP.RULE
+setlocal
+C:\Users\GAMER\scoop\apps\cmake\3.30.0\bin\cmake.exe -S//charlies-mbp.modem/charlie/git/CASM -B//charlies-mbp.modem/charlie/git/CASM --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file //charlies-mbp.modem/charlie/git/CASM/cmasm.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

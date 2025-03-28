@@ -1,0 +1,23 @@
+{
+  "DevContainersInfoBarHidden": true,
+  "ActiveTargetSystem": "Local Machine",
+  "OutputFoldersPerTargetSystem": {
+    "Local Machine": [
+      "out\\build\\x64-Debug",
+      "out\\install\\x64-Debug",
+      "out\\build\\Mingw64-Debug",
+      "out\\install\\Mingw64-Debug"
+    ],
+    "192.168.0.145": [
+      "out\\build\\x64-Debug",
+      "out\\install\\x64-Debug",
+      "out\\build\\Mingw64-Debug",
+      "out\\install\\Mingw64-Debug"
+    ]
+  },
+  "ExpandedNodes": [
+    ""
+  ],
+  "SelectedNode": "\\cmasm.sln",
+  "PreviewInSolutionExplorer": false
+}

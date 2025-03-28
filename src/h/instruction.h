@@ -1,10 +1,10 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#ifndef MASM_H
+#define MASM_H
 // max uint
 #define MAX_UINT 0xFFFFFFFF
-
 
 typedef struct {
     char opcode;
@@ -17,6 +17,49 @@ typedef struct {
 typedef struct {
     Instruction* instructions;
 } InstructionArray;
+
+typedef struct {
+    char* name;
+    char* value;
+} MASMVariable;
+
+typedef struct {
+    char* name;
+    char* value;
+} MASMFunction;
+
+typedef struct {
+    MASMVariable* variables;
+    int variable_count;
+} MASMVariables;
+
+struct interpreter {
+    char* code;
+    InstructionArray* instructions;
+    MASMVariables* variables;
+};
+
+typedef struct {
+    char* name;
+    char* value;
+} MASMLabel;
+
+typedef struct {
+    MASMLabel* labels;
+    int label_count;
+} MASMLabels;
+
+struct MASMObject {
+    char* name;
+    char* code;
+    char* source;
+    char* file;
+    long* memory;
+    InstructionArray* instructions;
+    MASMVariables* variables;
+    MASMLabel* labels;
+    MASMFunction* functions;
+};
 
 // Instructions available to use in the cpu
 enum Instructions {
@@ -105,3 +148,5 @@ enum OperandSizes {
 #pragma ignore GCC diagnostic "-Wunused-variable"
 Instruction create_instruction(char opcodze, const char* operands); // Function to create an instruction
 Instruction parse_instruction(const char* str);// Function to parse an instruction from a string
+
+#endif // MASM_H

@@ -1,3 +1,5 @@
+#ifndef MASM_UTILS_H
+#define MASM_UTILS_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -5,10 +7,23 @@
 #include <stdbool.h>
 #include <errno.h>
 #include <stdarg.h>
+#include <ctype.h>
+#include <limits.h>
+#include "instruction.h"
+#ifdef __linux__
 #include <regex.h>
+#elif _WIN32
+// find a better way to do this
+#include <windows.h>
+#endif
 #define MASM_VERSION "1.0.0"
 #define MASM_KEYWORD "masm"
 #define MASM_KEYWORD_LEN 4
+
+
+
+
+
 // lbl <name> or LBL <name>
 #define MASM_LABEL_REGEX "^[a-zA-Z_][a-zA-Z0-9_]*$"
 
@@ -20,59 +35,88 @@ bool CHECK_NULL(void* ptr) {
     return true;
 }
 
-bool is_valid_label(const char* label) {
-    regex_t regex;
-    int reti;
-
-    // Compile the regular expression
-    reti = regcomp(&regex, MASM_LABEL_REGEX, REG_EXTENDED);
-    if (reti) {
-        fprintf(stderr, "Could not compile regex for is_valid_label\n");
+bool CHECK_NULL_STR(char* str) {
+    if (str == NULL) {
+        fprintf(stderr, "String allocation failed\n");
         return false;
     }
+    return true;
+}
 
-    // Execute the regular expression
-    reti = regexec(&regex, label, 0, NULL, 0);
-    if (reti == REG_NOMATCH) {
-        regfree(&regex);
-        return false; // Label does not match the regex
-    } else if (reti) {
-        fprintf(stderr, "Regex match failed for is_valid_label\n");
-        regfree(&regex);
+bool CHECK_NULL_INT(int* ptr) {
+    if (ptr == NULL) {
+        fprintf(stderr, "Integer allocation failed\n");
         return false;
     }
-
-    regfree(&regex);
-    return true; // Label is valid
+    return true;
 }
 
-bool is_valid_number(const char* number) {
-    char* endptr;
-    errno = 0; // Clear errno before strtol
-    long val = strtol(number, &endptr, 10);
-    if (errno != 0 || *endptr != '\0' || val < INT32_MIN || val > INT32_MAX) {
-        return false; // Not a valid number
+bool free_ptr(void* ptr) {
+    if (ptr != NULL) {
+        free(ptr);
+        return true;
     }
-    return true; // Valid number
+    return false;
 }
-bool is_valid_hex(const char* hex) {
-    char* endptr;
-    errno = 0; // Clear errno before strtol
-    long val = strtol(hex, &endptr, 16);
-    if (errno != 0 || *endptr != '\0' || val < INT32_MIN || val > INT32_MAX) {
-        return false; // Not a valid hex number
+
+bool free_interpreter(struct MASMObject* interpreter) {
+    if (interpreter != NULL) {
+        free(interpreter->instructions);
+        free(interpreter->labels);
+        free(interpreter->functions);
+        free(interpreter->variables);
+        free(interpreter->memory);
+        free(interpreter->code);
+        free(interpreter);
+        return true;
     }
-    return true; // Valid hex number
+    return false;
 }
-// TODO: make the dammed thing actualy tokenize the string before it goes through
-bool is_valid_register(const char* reg) {
-    if (reg == NULL) {
-        return false;
+
+void box(char* str) {
+    int len = strlen(str);
+    printf("+");
+    for (int i = 0; i < len + 2; i++) {
+        printf("-");
     }
-    if (strcmp(reg, "RAX") == 0 || strcmp(reg, "RBX") == 0 || strcmp(reg, "RCX") == 0 ||
-        strcmp(reg, "RDX") == 0 || strcmp(reg, "RSI") == 0 || strcmp(reg, "RDI") == 0 ||
-        strcmp(reg, "RBP") == 0 || strcmp(reg, "RSP") == 0) {
-        return true; // Valid register
+    printf("+\n| %s |\n+", str);
+    for (int i = 0; i < len + 2; i++) {
+        printf("-");
     }
-    return false; // Invalid register
+    printf("+\n");
 }
+void print_error(const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    fprintf(stderr, "\033[31m"); // Set text color to red
+    vfprintf(stderr, format, args);
+    fprintf(stderr, "\033[0m"); // Reset text color
+    va_end(args);
+}
+void print_warning(const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    fprintf(stderr, "\033[33m"); // Set text color to yellow
+    vfprintf(stderr, format, args);
+    fprintf(stderr, "\033[0m"); // Reset text color
+    va_end(args);
+}
+void print_info(const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    fprintf(stderr, "\033[32m"); // Set text color to green
+    vfprintf(stderr, format, args);
+    fprintf(stderr, "\033[0m"); // Reset text color
+    va_end(args);
+}
+void print_debug(const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    fprintf(stderr, "\033[34m"); // Set text color to blue
+    vfprintf(stderr, format, args);
+    fprintf(stderr, "\033[0m"); // Reset text color
+    va_end(args);
+}
+
+
+#endif // MASM_UTILS_H

@@ -6,9 +6,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../h/instruction.h"
+
 #include "../h/cpu.h"
-#include "../h/utils.h"
+
 #include "memory.h"
 #include "../h/errors.h"
 #include "../headers/mni.h"
