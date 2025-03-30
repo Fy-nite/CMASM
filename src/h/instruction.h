@@ -7,15 +7,18 @@
 #define MAX_UINT 0xFFFFFFFF
 
 typedef struct {
-    char opcode;
-    char* operands;
-    int* operand_sizes;
-    int* operand_types;
+    int opcode; // Change from char to int to match the Instructions enum
+    int operands[4]; // Array to hold operands (assuming max 4 operands)
+    int operand_sizes[4];
+    int operand_types[4];
     int operand_count;
+    int count;
 } Instruction;
 
 typedef struct {
     Instruction* instructions;
+    int count; // Number of instructions currently in the array
+    int size;  // Total allocated size of the array
 } InstructionArray;
 
 typedef struct {
@@ -144,9 +147,5 @@ enum OperandSizes {
     QWORD = 3,
     ITSLARGEOK = 4,
 };
-
-#pragma ignore GCC diagnostic "-Wunused-variable"
-Instruction create_instruction(char opcodze, const char* operands); // Function to create an instruction
-Instruction parse_instruction(const char* str);// Function to parse an instruction from a string
 
 #endif // MASM_H

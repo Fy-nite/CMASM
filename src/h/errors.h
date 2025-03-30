@@ -61,3 +61,54 @@ void print_masm_exception(MASMException* exception) {
         fprintf(stderr, "\033[0m"); // Reset text color
     }
 }
+// horror execption
+typedef struct {
+    char* message; // Error message
+    int code;     // Error code
+    char* stack_trace; // Stack trace
+    char* context; // Context of the error
+    char* source;  // Source code where the error occurred
+} HorrorException;
+
+// Function to create a new HorrorException
+HorrorException* create_horror_exception(const char* message, int code, const char* stack_trace, const char* context, const char* source) {
+    HorrorException* exception = (HorrorException*)malloc(sizeof(HorrorException));
+    if (exception == NULL) {
+        fprintf(stderr, "Memory allocation failed for HorrorException\n");
+        exit(EXIT_FAILURE);
+    }
+    exception->message = strdup(message);
+    exception->code = code;
+    exception->stack_trace = strdup(stack_trace);
+    exception->context = strdup(context);
+    exception->source = strdup(source);
+    return exception;
+}
+// Function to print the HorrorException with an ASCII art of an explosion, free and exit
+void print_horror_exception_and_exit(HorrorException* exception) {
+    if (exception != NULL) {
+        fprintf(stderr, "\033[31m"); // Set text color to red
+        fprintf(stderr, "HorrorException: %s\n", exception->message);
+        fprintf(stderr, "Error code: %d\n", exception->code);
+        fprintf(stderr, "Stack trace: %s\n", exception->stack_trace);
+        fprintf(stderr, "Context: %s\n", exception->context);
+        fprintf(stderr, "Source: %s\n", exception->source);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "      BOOM!      \n");
+        fprintf(stderr, "     /     \\     \n");
+        fprintf(stderr, "    /       \\    \n");
+        fprintf(stderr, "   /         \\   \n");
+        fprintf(stderr, "  /           \\  \n");
+        fprintf(stderr, " /             \\ \n");
+        fprintf(stderr, "*****************\n");
+        fprintf(stderr, "\033[0m"); // Reset text color
+    }
+    if (exception != NULL) {
+        free(exception->message);
+        free(exception->stack_trace);
+        free(exception->context);
+        free(exception->source);
+        free(exception);
+    }
+    exit(EXIT_FAILURE);
+}
