@@ -14,6 +14,8 @@ file(GLOB SOURCES
     src/c/*.c
     src/cpp/*.cpp
     src/h/*.h
+    src/cpp/cpu.cpp
+    src/cpp/cpu_wrapper.cpp
 )
 
 # Add executable target

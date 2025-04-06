@@ -51,8 +51,18 @@ int get_instruction_opcode(const char* opcode) {
     return -1; // Invalid opcode
 }
 
+// Helper function to find a label by name
+int find_label(MASMLabels* labels, const char* name) {
+    for (int i = 0; i < labels->label_count; i++) {
+        if (strcmp(labels->labels[i].name, name) == 0) {
+            return labels->labels[i].instruction_index;
+        }
+    }
+    return -1; // Label not found
+}
+
 // Tokenize a single line of assembly code into an Instruction
-bool tokenize_instruction(const char* line, Instruction* instruction, int* operands_array, int* operand_types_array) {
+bool tokenize_instruction(const char* line, Instruction* instruction, int* operands_array, int* operand_types_array, MASMLabels* labels) {
     char* line_copy = strdup(line);
     if (!line_copy) {
         fprintf(stderr, "Memory allocation failed for line copy\n");
@@ -115,8 +125,16 @@ bool tokenize_instruction(const char* line, Instruction* instruction, int* opera
             // Otherwise, treat it as an immediate value or label
             if (operand[0] == '#') {
                 // Label
-                operands_array[i] = atoi(operand + 1); // Convert label to integer
-                operand_types_array[i] = LABEL;
+                const char* label_name = operand + 1;
+                int label_index = find_label(labels, label_name);
+                if (label_index != -1) {
+                    operands_array[i] = label_index; // Store instruction index
+                    operand_types_array[i] = LABEL;
+                } else {
+                    fprintf(stderr, "Error: Undefined label '%s'\n", label_name);
+                    free(line_copy);
+                    return false;
+                }
             } else {
                 operands_array[i] = atoi(operand); // Convert to integer
                 operand_types_array[i] = IMMEDIATE;
@@ -141,14 +159,28 @@ InstructionArray* parse_instructions(const char* source_code) {
         return NULL;
     }
 
+    // Initialize labels array
+    MASMLabels labels = {0};
+    labels.labels = (MASMLabel*)malloc(sizeof(MASMLabel) * 10); // Initial capacity
+    if (!labels.labels) {
+        fprintf(stderr, "Memory allocation failed for labels\n");
+        free_instruction_array(instruction_array);
+        return NULL;
+    }
+    labels.label_count = 0;
+    labels.label_capacity = 10;
+
     char* code_copy = strdup(source_code);
     if (!code_copy) {
         fprintf(stderr, "Memory allocation failed for source code copy\n");
         free_instruction_array(instruction_array);
+        free(labels.labels);
         return NULL;
     }
 
+    // First Pass: Collect Labels
     char* line = strtok(code_copy, "\n");
+    int instruction_index = 0; // Keep track of instruction index
     while (line) {
         // Skip empty lines and comments
         char* trimmed = line;
@@ -158,9 +190,76 @@ InstructionArray* parse_instructions(const char* source_code) {
             continue;
         }
 
-        // Check if the line is a label
+        // Check if the line is a label definition
         if (strncasecmp(trimmed, "LBL", 3) == 0) {
-            // Labels are not instructions, so skip them
+            // Extract label name
+            char* label_name = trimmed + 3;
+            while (isspace(*label_name)) label_name++;
+            char* label_end = label_name;
+            while (*label_end != '\0' && !isspace(*label_end)) label_end++;
+            int label_len = label_end - label_name;
+            char name[32]; // Assuming max label length of 31 characters
+            strncpy(name, label_name, label_len);
+            name[label_len] = '\0';
+
+            // Check if label already exists
+            if (find_label(&labels, name) != -1) {
+                fprintf(stderr, "Error: Duplicate label '%s'\n", name);
+                free_instruction_array(instruction_array);
+                free(code_copy);
+                free(labels.labels);
+                return NULL;
+            }
+
+            // Add label to array
+            if (labels.label_count >= labels.label_capacity) {
+                labels.label_capacity *= 2;
+                labels.labels = (MASMLabel*)realloc(labels.labels, sizeof(MASMLabel) * labels.label_capacity);
+                if (!labels.labels) {
+                    fprintf(stderr, "Memory reallocation failed for labels\n");
+                    free_instruction_array(instruction_array);
+                    free(code_copy);
+                    free(labels.labels);
+                    return NULL;
+                }
+            }
+            labels.labels[labels.label_count].name = strdup(name);
+            labels.labels[labels.label_count].instruction_index = instruction_index;
+            labels.label_count++;
+        } else {
+            instruction_index++; // Increment instruction index for non-label lines
+        }
+
+        line = strtok(NULL, "\n");
+    }
+
+    // Second Pass: Parse Instructions
+    free(code_copy);
+    code_copy = strdup(source_code); // Restore source code copy
+    if (!code_copy) {
+        fprintf(stderr, "Memory allocation failed for source code copy\n");
+        free_instruction_array(instruction_array);
+        // Free label names
+        for (int i = 0; i < labels.label_count; i++) {
+            free(labels.labels[i].name);
+        }
+        free(labels.labels);
+        return NULL;
+    }
+
+    line = strtok(code_copy, "\n");
+    instruction_index = 0; // Reset instruction index
+    while (line) {
+        // Skip empty lines and comments
+        char* trimmed = line;
+        while (isspace(*trimmed)) trimmed++;
+        if (*trimmed == '\0' || *trimmed == ';') {
+            line = strtok(NULL, "\n");
+            continue;
+        }
+
+        // Skip label definitions in the second pass
+        if (strncasecmp(trimmed, "LBL", 3) == 0) {
             line = strtok(NULL, "\n");
             continue;
         }
@@ -169,10 +268,15 @@ InstructionArray* parse_instructions(const char* source_code) {
         Instruction instruction = {0};
         int operands_array[4] = {0}; // Initialize operands array
         int operand_types_array[4] = {0}; // Initialize operand types array
-        if (!tokenize_instruction(trimmed, &instruction, operands_array, operand_types_array)) {
+        if (!tokenize_instruction(trimmed, &instruction, operands_array, operand_types_array, &labels)) {
             fprintf(stderr, "Error parsing instruction: %s\n", trimmed);
             free_instruction_array(instruction_array);
             free(code_copy);
+            // Free label names
+            for (int i = 0; i < labels.label_count; i++) {
+                free(labels.labels[i].name);
+            }
+            free(labels.labels);
             return NULL;
         }
 
@@ -184,6 +288,11 @@ InstructionArray* parse_instructions(const char* source_code) {
                 fprintf(stderr, "Memory reallocation failed for instructions\n");
                 free_instruction_array(instruction_array);
                 free(code_copy);
+                // Free label names
+                for (int i = 0; i < labels.label_count; i++) {
+                    free(labels.labels[i].name);
+                }
+                free(labels.labels);
                 return NULL;
             }
         }
@@ -195,9 +304,15 @@ InstructionArray* parse_instructions(const char* source_code) {
         instruction_array->instructions[instruction_array->count++] = instruction;
 
         line = strtok(NULL, "\n");
+        instruction_index++;
     }
 
     free(code_copy);
+    // Free label names
+    for (int i = 0; i < labels.label_count; i++) {
+        free(labels.labels[i].name);
+    }
+    free(labels.labels);
     return instruction_array;
 }
 

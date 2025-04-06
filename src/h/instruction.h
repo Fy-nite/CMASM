@@ -44,12 +44,13 @@ struct interpreter {
 
 typedef struct {
     char* name;
-    char* value;
+    int instruction_index; // Store the instruction index instead of value
 } MASMLabel;
 
 typedef struct {
     MASMLabel* labels;
     int label_count;
+    int label_capacity; // Add capacity for dynamic array
 } MASMLabels;
 
 struct MASMObject {

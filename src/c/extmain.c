@@ -12,9 +12,11 @@
 #include "memory.h"
 #include "../h/errors.h"
 #include "../headers/mni.h"
+
 InstructionArray *create_instruction_array(int size);
 InstructionArray* parse_instructions(const char* source_code);
 void free_instruction_array(InstructionArray* instruction_array);
+
 void run_tests() {
     printf("Running tests...\n");
 
@@ -28,25 +30,19 @@ void run_tests() {
 
     printf("Test Program:\n%s\n", test_program);
 
-    // Parse the instructions
-    InstructionArray* instructions = parse_instructions(test_program);
-    if (!instructions) {
-        fprintf(stderr, "Failed to parse instructions.\n");
-        return;
-    }
+    // Create CPU
+    CPU cpu;
+    create_cpu_wrapper(&cpu, "test_cpu", 100);
 
-    // Print parsed instructions
-    printf("Parsed Instructions:\n");
-    for (int i = 0; i < instructions->count; i++) {
-        Instruction* instr = &instructions->instructions[i];
-        printf("Opcode: %d, Operands: ", instr->opcode);
-        for (int j = 0; j < instr->operand_count; j++) {
-            printf("%d(%d) ", instr->operands[j], instr->operand_types[j]);
-        }
-        printf("\n");
-    }
+    // Execute program
+    runFile_wrapper("test.masm", &cpu);
 
-    free_instruction_array(instructions);
+    // Print register values
+    printf("Register values:\n");
+    printf("RAX: %lld\n", cpu.Registers[RAX]);
+    printf("RBX: %lld\n", cpu.Registers[RBX]);
+
+    destroy_cpu_wrapper(&cpu);
     printf("Tests completed.\n");
 }
 
