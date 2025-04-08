@@ -90,10 +90,43 @@ int execute_instruction(Instruction* instruction, CPU* cpu) {
             return jmp_instruction(instruction, cpu);
         case HLT:
             return hlt_instruction(instruction, cpu);
+        case OUT: {
+            // OUT port value
+            int port = instruction->operands[0];
+            int value = instruction->operands[1];
+
+            if (port == 1) {
+                // Output to stdout
+                if (instruction->operand_types[1] == REGISTER) {
+                    printf("%lld\n", cpu->Registers[value]);
+                } else if (instruction->operand_types[1] == IMMEDIATE) {
+                    printf("%lld\n", value);
+                } else {
+                    fprintf(stderr, "Error: Unsupported operand type for OUT instruction\n");
+                    return -1;
+                }
+            } else if (port == 2) {
+                // Output to stderr
+                if (instruction->operand_types[1] == REGISTER) {
+                    fprintf(stderr, "%lld\n", cpu->Registers[value]);
+                } else if (instruction->operand_types[1] == IMMEDIATE) {
+                    fprintf(stderr, "%lld\n", value);
+                } else {
+                    fprintf(stderr, "Error: Unsupported operand type for OUT instruction\n");
+                    return -1;
+                }
+            } else {
+                fprintf(stderr, "Error: Unsupported port for OUT instruction\n");
+                return -1;
+            }
+            break;
+        }
         default:
             printf("Unknown opcode: %d\n", instruction->opcode);
             return -1;
     }
+
+    return 0;
 }
 
 int execute_program(CPU* cpu, InstructionArray* program) {

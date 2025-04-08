@@ -16,8 +16,13 @@
     ]
   },
   "ExpandedNodes": [
-    ""
+    "",
+    "\\src",
+    "\\src\\c",
+    "\\src\\cpp",
+    "\\src\\h",
+    "\\src\\headers"
   ],
-  "SelectedNode": "\\cmasm.sln",
+  "SelectedNode": "\\src\\c\\extmain.c",
   "PreviewInSolutionExplorer": false
 }

@@ -101,6 +101,9 @@ enum Instructions {
     LEAVE = 0x20,
     MOVTO = 0x21,
     MOVFROM = 0x22,
+    DB = 0x23, // Define Byte
+    OUT = 0x24, // Output to console
+    COUT = 0x25, // Output to console as char
 };
 
 enum Registers {

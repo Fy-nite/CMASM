@@ -20,13 +20,15 @@ void free_instruction_array(InstructionArray* instruction_array);
 void run_tests() {
     printf("Running tests...\n");
 
-    // Test case: Simple MicroASM program
+    // Test case: Simple MicroASM program with clear label ordering
     const char* test_program = 
-        "MOV RAX RBX\n"
-        "ADD RAX R1\n"
-        "JMP #label\n"
-        "LBL label\n"
-        "HLT\n";
+        "#include \"stdio.print\"\n"  // Include the stdio print functions
+        "lbl main\n"
+        "MOV RAX 1\n"
+        "MOV RBX 100\n" // setup the mem
+        "DB $100 \"Hello world\"\n" // Define a byte string
+        "CALL #printf\n" // Call the printf function
+        "hlt\n";
 
     printf("Test Program:\n%s\n", test_program);
 
@@ -34,8 +36,15 @@ void run_tests() {
     CPU cpu;
     create_cpu_wrapper(&cpu, "test_cpu", 100);
 
-    // Execute program
-    runFile_wrapper("test.masm", &cpu);
+    // Parse instructions directly
+    InstructionArray* instructions = parse_instructions(test_program);
+    if (!instructions) {
+        fprintf(stderr, "Failed to parse instructions.\n");
+    } else {
+        // Execute the parsed instructions
+        execute_program_wrapper(&cpu, instructions);
+        free_instruction_array(instructions);
+    }
 
     // Print register values
     printf("Register values:\n");
